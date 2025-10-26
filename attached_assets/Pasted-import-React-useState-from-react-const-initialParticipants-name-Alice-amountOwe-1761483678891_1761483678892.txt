@@ -1,0 +1,73 @@
+import React, { useState } from "react";
+
+const initialParticipants = [
+  { name: "Alice", amountOwed: 0 },
+  { name: "Bob", amountOwed: 0 },
+  { name: "Charlie", amountOwed: 0 },
+];
+
+export default function SplitBill() {
+  const [participants, setParticipants] = useState(initialParticipants);
+  const [totalAmount, setTotalAmount] = useState("");
+
+  // N빵 계산
+  const calculateEqualSplit = () => {
+    const amount = totalAmount ? Number(totalAmount) : 0;
+    const perPerson = amount / participants.length;
+    setParticipants(
+      participants.map((p) => ({ ...p, amountOwed: perPerson }))
+    );
+  };
+
+  const handleAmountChange = (index, value) => {
+    const newParticipants = [...participants];
+    newParticipants[index].amountOwed = Number(value);
+    setParticipants(newParticipants);
+  };
+
+  const handleTossPay = (participant) => {
+    const tossId = "YOUR_TOSS_ID"; // 본인 Toss.me ID
+    const url = `https://toss.me/${tossId}?amount=${participant.amountOwed}`;
+    window.open(url, "_blank");
+  };
+
+  return (
+    <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold mb-4">💰 정산하기</h2>
+
+      <input
+        type="number"
+        placeholder="총 금액 입력"
+        value={totalAmount}
+        onChange={(e) => setTotalAmount(e.target.value)}
+        className="w-full border rounded p-2 mb-3"
+      />
+      <button
+        onClick={calculateEqualSplit}
+        className="w-full bg-blue-500 text-white rounded p-2 mb-4"
+      >
+        N빵 계산
+      </button>
+
+      {participants.map((p, idx) => (
+        <div key={p.name} className="flex justify-between items-center mb-3 border-b pb-2">
+          <div>
+            <p className="font-medium">{p.name}</p>
+            <input
+              type="number"
+              value={p.amountOwed}
+              onChange={(e) => handleAmountChange(idx, e.target.value)}
+              className="border rounded p-1 w-24"
+            />
+          </div>
+          <button
+            onClick={() => handleTossPay(p)}
+            className="bg-green-500 text-white px-3 py-1 rounded-lg"
+          >
+            💸 Toss 송금
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
